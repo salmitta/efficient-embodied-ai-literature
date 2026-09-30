@@ -1,0 +1,31 @@
+# id | why (one line)
+2410.24164 | π0: the VLM + flow-matching action-expert template most efficiency work now targets.
+2504.16054 | π0.5: open-world generalization with the same architecture; common acceleration/compression target.
+2501.09747 | FAST: DCT+BPE action tokenization that makes autoregressive VLAs trainable and faster.
+2502.19645 | OpenVLA-OFT: parallel decoding + chunking + continuous actions (≈26× throughput); the baseline efficiency recipe.
+2406.09246 | OpenVLA: the 7B open VLA behind most compression/profiling studies; first 4-bit real-robot evidence.
+figure-helix-2025 | Helix: reference industrial onboard fast/slow design (S2 7–9 Hz, S1 200 Hz on embedded GPUs).
+2503.14734 | GR00T N1: open dual-system humanoid VLA with public TensorRT cross-hardware latency tables.
+2506.01844 | SmolVLA: ~450M VLA plus open asynchronous inference stack (LeRobot).
+2503.20020 | Gemini Robotics: cloud backbone + onboard decoder with reported latency; paired with the On-Device release.
+2303.04137 | Diffusion Policy: the generative-policy baseline whose sampling cost motivated step-reduction work.
+2405.07503 | Consistency Policy: distils diffusion policies to one/few steps; foundation for few-step action heads.
+2304.13705 | ACT/ALOHA: introduced action chunking and temporal ensembling.
+2506.07339 | Real-Time Chunking (RTC): freeze-and-inpaint asynchronous execution for large chunking policies.
+2408.17355 | Bidirectional Decoding: formalizes the consistency-vs-reactivity trade-off of chunked execution.
+2512.01031 | VLASH: future-state-aware async inference; large reaction-latency reductions at no runtime cost.
+2605.08168 | Understanding Async Inference Methods for VLAs: controlled head-to-head of RTC variants, VLASH, A2C2.
+2502.02175 | VLA-Cache: training-free temporal token/KV reuse across control steps.
+2411.02359 | DeeR-VLA: budget-conditioned dynamic early exit for VLAs.
+2510.26742 | Running VLAs at Real-time Speed: kernel/graph-level recipe for π0 at ≈30 Hz on a consumer GPU.
+2607.12659 | Jetson-PI: onboard asynchronous VLA on Jetson Orin with CUDA-level system optimizations.
+2602.18397 | VLA-Perf: analytical, hardware-normalized performance model for VLA placement and design.
+2604.24447 | VLAs across XPUs: cost/energy/time leaderboard; compute-bound VLM vs memory-bound action expert.
+2603.19131 | From Inference Efficiency to Embodied Efficiency: task-level metrics (completion time, motion energy).
+2606.28529 | The Speedup Paradox: per-step speedups need not shorten tasks; hardware-dependent sweet spots.
+2506.07530 | BitVLA: first native 1.58-bit VLA; large memory/latency savings vs OpenVLA-OFT.
+2609.25376 | VLAQuantBench: closed-loop PTQ benchmark exposing recipe-dependent quantization failures.
+2506.17639 | RLRC: prune → RL recovery → quantize pipeline; key evidence on composing compression techniques.
+2603.18284 | Offload or Overload: measurement study of onboard vs edge vs cloud for mobile-manipulation FM stacks.
+2602.15922 | DreamZero: 14B world-action model driven to real-time closed-loop control via an optimization stack.
+2506.09937 | SAFE: multitask failure detection for VLAs with conformal calibration.

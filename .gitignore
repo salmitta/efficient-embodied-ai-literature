@@ -1,0 +1,14 @@
+# local tooling
+.claude/
+__pycache__/
+.DS_Store
+# large intermediate API caches / candidate dumps (regenerable via _work/snowball.py and fetch_abstracts.py)
+_work/snowball_cache/
+_work/snowball_candidates.json
+_work/round2_candidates.json
+_work/shards/
+_work/round1_db.jsonl
+_work/existing_items.tsv
+_work/verify_s2.json
+_work/venue_check_dblp.json
+_work/snowball.log

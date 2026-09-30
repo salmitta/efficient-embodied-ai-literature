@@ -1,0 +1,353 @@
+<title>Efficient Embodied AI Literature</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a lab-notebook index — sticky query bar over a filter rail and a single column of record cards. */
+:root {
+  --bg: #f5f7f8;          /* cool paper */
+  --surface: #ffffff;
+  --ink: #16212b;         /* navy-black text */
+  --muted: #5a6975;
+  --line: #d9e0e5;
+  --accent: #0d6b66;      /* deep teal: links, active filters */
+  --accent-soft: #e0efed;
+  --signal: #9a5b00;      /* amber: efficiency numbers */
+  --signal-soft: #fbf0dd;
+  --warn: #a3342b;
+  --mark: #fff2b3;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius: 6px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1519; --surface: #161e24; --ink: #e3eaee; --muted: #93a3ae; --line: #28343d;
+    --accent: #5cc4bc; --accent-soft: #173331; --signal: #e8b25e; --signal-soft: #33271a; --warn: #f08a80; --mark: #5a4b12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1519; --surface: #161e24; --ink: #e3eaee; --muted: #93a3ae; --line: #28343d;
+  --accent: #5cc4bc; --accent-soft: #173331; --signal: #e8b25e; --signal-soft: #33271a; --warn: #f08a80; --mark: #5a4b12;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body); margin: 0; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; }
+
+header.top { padding-block: 28px 18px; }
+.eyebrow { font: 500 12px/1.2 var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 700 clamp(26px, 4vw, 38px)/1.1 var(--font-display); margin: 6px 0 8px; text-wrap: balance; letter-spacing: -.01em; }
+.lede { max-width: 68ch; color: var(--muted); margin: 0; }
+.lede b { color: var(--ink); font-weight: 600; }
+
+.querybar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 12px; }
+.qrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.qbox { flex: 1 1 320px; min-width: 0; position: relative; }
+#q { width: 100%; font: 16px var(--font-body); padding: 11px 14px 11px 38px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); }
+#q::placeholder { color: var(--muted); }
+.qbox svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--muted); fill: none; }
+select, .btn { font: 14px var(--font-body); padding: 9px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); }
+.btn { cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.examples { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 13px; color: var(--muted); align-items: baseline; }
+.examples button { font: 13px var(--font-data); background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 28px; padding-block: 20px 60px; }
+@media (max-width: 820px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+
+aside.filters { display: flex; flex-direction: column; gap: 18px; align-self: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); max-height: calc(100vh - 110px); overflow: auto; padding-right: 4px; }
+@media (max-width: 820px) { aside.filters { position: static; max-height: none; overflow: visible; } }
+.fgroup h3 { font: 600 12px/1.2 var(--font-data); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 13px/1.2 var(--font-body); padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.chip .n { font: 11px var(--font-data); color: var(--muted); margin-left: 3px; }
+.chip[aria-pressed="true"] .n { color: var(--surface); opacity: .85; }
+.clist { display: flex; flex-direction: column; gap: 4px; }
+.clist label { display: grid; grid-template-columns: auto 30px 1fr auto; gap: 8px; align-items: baseline; font-size: 13.5px; cursor: pointer; padding: 3px 4px; border-radius: 4px; }
+.clist label:hover { background: var(--accent-soft); }
+.clist .code { font: 500 12px var(--font-data); color: var(--accent); }
+.clist .n, .tick .n { font: 11px var(--font-data); color: var(--muted); }
+.clist label.tick { display: flex; gap: 8px; align-items: center; font-size: 13.5px; cursor: pointer; }
+.tick .n { margin-left: auto; }
+.fgroup select { width: 100%; }
+.yr { display: flex; gap: 8px; align-items: center; }
+.yr select { width: auto; flex: 1; }
+#reset { width: 100%; }
+
+.status { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+#count { font: 500 14px var(--font-data); }
+#count b { font-size: 18px; }
+.sort { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+
+.note { border: 1px solid var(--line); border-left: 3px solid var(--signal); background: var(--surface); padding: 10px 14px; border-radius: var(--radius); font-size: 13.5px; color: var(--muted); margin-bottom: 14px; }
+.note summary { cursor: pointer; color: var(--ink); font-weight: 500; }
+.note ul { margin: 8px 0 2px; padding-left: 18px; }
+.note code { font: 12px var(--font-data); color: var(--signal); }
+
+ol.results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.rec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; min-width: 0; }
+.rec h2 { font: 600 17px/1.3 var(--font-body); margin: 0; text-wrap: pretty; }
+.rec h2 a { color: var(--ink); text-decoration: none; }
+.rec h2 a:hover { color: var(--accent); text-decoration: underline; }
+.meta { font-size: 13px; color: var(--muted); margin-top: 3px; overflow-wrap: anywhere; }
+.meta .venue { color: var(--ink); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
+.tag { font: 11.5px/1.3 var(--font-data); padding: 2px 7px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); }
+.tag.plain { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+.tag.warn { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+.rel { display: inline-flex; gap: 2px; align-items: center; margin-right: 2px; }
+.rel i { width: 7px; height: 11px; border-radius: 1px; background: var(--line); display: block; }
+.rel i.on { background: var(--accent); }
+.tldr { margin: 8px 0 0; max-width: 80ch; }
+.eff { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; font-size: 13.5px; background: var(--signal-soft); border-radius: 4px; padding: 6px 9px; }
+.eff .m { font: 500 11px var(--font-data); text-transform: uppercase; letter-spacing: .05em; color: var(--signal); }
+.eff .v { font-family: var(--font-data); font-size: 13px; overflow-wrap: anywhere; min-width: 0; }
+.eff .hw { color: var(--muted); }
+.links { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 9px; font-size: 13px; }
+.links .id { font: 12px var(--font-data); color: var(--muted); }
+.rec details { margin-top: 8px; font-size: 13px; }
+.rec details summary { cursor: pointer; color: var(--muted); }
+.rec dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 8px 0 0; }
+.rec dt { color: var(--muted); font: 12px var(--font-data); }
+.rec dd { margin: 0; overflow-wrap: anywhere; }
+mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1px; }
+.empty { padding: 30px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); }
+#more { margin: 16px auto 0; display: block; }
+footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-block: 16px 30px; }
+@media (prefers-reduced-motion: no-preference) { .rec { transition: border-color .15s; } .rec:hover { border-color: var(--accent); } }
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">CoRL 2026 Workshop · Efficient Foundation Models for Real-Time Embodied AI</div>
+  <h1>Efficient Embodied AI Literature</h1>
+  <p class="lede">A searchable index of <b id="total">…</b> papers, preprints, reports, blogs and repos on making robot foundation models fast, cheap and safe enough to run on the robot. Snapshot of <b>__BUILT__</b>.</p>
+</header>
+
+<div class="querybar">
+  <div class="wrap">
+    <div class="qrow">
+      <div class="qbox">
+        <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Search titles, summaries, techniques, authors, hardware…" aria-label="Search the database">
+      </div>
+    </div>
+    <div class="examples"><span>Try:</span>
+      <button type="button" data-q="quantization jetson">quantization jetson</button>
+      <button type="button" data-q="real-time chunking">real-time chunking</button>
+      <button type="button" data-q="world action model distillation">world action model distillation</button>
+      <button type="button" data-q="control barrier function">control barrier function</button>
+      <button type="button" data-q="LoRA OpenVLA">LoRA OpenVLA</button>
+      <button type="button" data-q="edge cloud offloading">edge cloud offloading</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <aside class="filters" aria-label="Filters">
+    <div class="fgroup"><h3>Cluster</h3><div class="clist" id="f-cluster"></div></div>
+    <div class="fgroup"><h3>Minimum relevance</h3><div class="chips" id="f-rel"></div></div>
+    <div class="fgroup"><h3>Year</h3>
+      <div class="yr"><select id="f-y0" aria-label="From year"></select><span>to</span><select id="f-y1" aria-label="To year"></select></div>
+    </div>
+    <div class="fgroup"><h3>Type</h3><div class="chips" id="f-type"></div></div>
+    <div class="fgroup"><h3>Efficiency number measures</h3>
+      <select id="f-metric" aria-label="Efficiency metric type"><option value="">Any (or none)</option></select>
+    </div>
+    <div class="fgroup"><h3>Evidence</h3>
+      <div class="clist">
+        <label class="tick"><input type="checkbox" id="f-eff"> Reports efficiency numbers <span class="n" data-n="eff"></span></label>
+        <label class="tick"><input type="checkbox" id="f-hw"> States hardware <span class="n" data-n="hw"></span></label>
+        <label class="tick"><input type="checkbox" id="f-robot"> Real-robot evaluation <span class="n" data-n="robot"></span></label>
+        <label class="tick"><input type="checkbox" id="f-onboard"> Onboard deployment <span class="n" data-n="onboard"></span></label>
+        <label class="tick"><input type="checkbox" id="f-code"> Has code <span class="n" data-n="code"></span></label>
+        <label class="tick"><input type="checkbox" id="f-nofound"> Hide foundational (non-robotics) techniques</label>
+      </div>
+    </div>
+    <button class="btn" id="reset" type="button">Clear search and filters</button>
+  </aside>
+
+  <main>
+    <details class="note">
+      <summary>How to read relevance and efficiency numbers</summary>
+      <ul>
+        <li><b>Relevance 1–5</b> rates how central an item is to the workshop's question, not paper quality. 5 = core, 4 = directly relevant, 3 = relevant or foundational technique, 2 = context (major models, datasets, benchmarks). Scores come from the curating agent's reading of the abstract; treat one-point differences as noise.</li>
+        <li><b>Efficiency numbers are only comparable within the same measure.</b> <code>closed-loop control</code> (full sense→act loop), <code>open-loop chunk rate</code> (model output rate in isolation), <code>throughput</code> (often batched), <code>relative latency</code> (vs. each paper's own baseline), <code>relative memory</code> and <code>energy</code> are different quantities. Many entries omit hardware; don't compare those at all.</li>
+        <li>Numbers are as the authors state them; nothing was re-measured.</li>
+      </ul>
+    </details>
+    <div class="status">
+      <div id="count" aria-live="polite"></div>
+      <label class="sort">Sort
+        <select id="sort" aria-label="Sort results">
+          <option value="best">Best match</option>
+          <option value="rel">Relevance, then newest</option>
+          <option value="new">Newest first</option>
+          <option value="old">Oldest first</option>
+        </select>
+      </label>
+    </div>
+    <ol class="results" id="results"></ol>
+    <button class="btn" id="more" type="button" hidden>Show more</button>
+  </main>
+</div>
+
+<footer class="wrap">
+  Built from <code>literature_db.jsonl</code> (__N__ records). Every record traces to a fetched source; items marked <em>unverified</em> could not be confirmed. TL;DRs are written by the curators, not copied from abstracts.__DOWNLOADS__
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/minisearch/7.1.2/umd/index.min.js"></script>
+<script id="db" type="application/json">__DATA__</script>
+<script>
+(function () {
+  "use strict";
+  const CL = {C1:"Efficient VLA architectures", C2:"Compression", C3:"Efficient adaptation & fine-tuning", C4:"Benchmarking & composability",
+    C5:"Hardware & accelerators", C6:"Edge-cloud & fleets", C7:"Safety under latency", C8:"Efficient world models", C9:"People, venues & blogs"};
+  const D = JSON.parse(document.getElementById("db").textContent);
+  const R = D.map((a, i) => ({ i, id:a[0], t:a[1], au:a[2], y:a[3], v:a[4], ty:a[5], u:a[6], pdf:a[7], code:a[8], c:a[9], kw:a[10],
+    tech:a[11], base:a[12], params:a[13], hw:a[14], met:a[15], mm:a[16], bm:a[17], robot:a[18], onb:a[19], tl:a[20], rel:a[21],
+    why:a[22], fnd:a[23], ver:a[24], via:a[25], mc:a[26] }));
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  $("#total").textContent = R.length.toLocaleString();
+
+  // ---- search index (MiniSearch; falls back to token matching if the CDN is unreachable) ----
+  let ms = null;
+  const docs = R.map(r => ({ id:r.i, t:r.t, tl:r.tl, kw:r.kw.concat(r.tech).join(" "), au:r.au.join(" "),
+    x:[r.v, r.hw, r.base, r.mc, r.bm.join(" "), r.id, r.params].join(" ") }));
+  if (window.MiniSearch) {
+    ms = new MiniSearch({ fields:["t","tl","kw","au","x"], idField:"id",
+      searchOptions:{ boost:{ t:3, kw:2, tl:1.3, au:1.2 }, prefix:true, fuzzy:0.18 } });
+    ms.addAll(docs);
+  }
+  const norm = s => s.toLowerCase().normalize("NFKD").replace(/[^\w\s.-]/g, " ");
+  const hay = docs.map(d => norm([d.t, d.tl, d.kw, d.au, d.x].join(" ")));
+  function search(q) {
+    q = q.trim();
+    if (!q) return null;
+    if (ms) {
+      let hits = ms.search(q, { combineWith:"AND" });
+      if (!hits.length) hits = ms.search(q, { combineWith:"OR" });
+      return new Map(hits.map(h => [h.id, h.score]));
+    }
+    const toks = norm(q).split(/\s+/).filter(Boolean), m = new Map();
+    hay.forEach((h, i) => { const s = toks.filter(t => h.includes(t)).length; if (s === toks.length) m.set(i, s + (norm(R[i].t).includes(norm(q)) ? 5 : 0)); });
+    return m;
+  }
+
+  // ---- filters ----
+  const state = { q:"", cl:new Set(), rel:0, y0:0, y1:9999, ty:new Set(), metric:"", eff:false, hw:false, robot:false, onboard:false, code:false, nofound:false, sort:"best", shown:40 };
+  const count = f => R.filter(f).length;
+  $("#f-cluster").innerHTML = Object.entries(CL).map(([k, v]) =>
+    `<label><input type="checkbox" value="${k}"><span class="code">${k}</span><span>${esc(v)}</span><span class="n">${count(r => r.c.includes(k))}</span></label>`).join("");
+  $("#f-rel").innerHTML = [[0,"Any"],[2,"2+"],[3,"3+"],[4,"4+"],[5,"5"]].map(([v, l]) =>
+    `<button type="button" class="chip" data-v="${v}" aria-pressed="${v === 0}">${l}<span class="n">${count(r => (r.rel || 0) >= v)}</span></button>`).join("");
+  const types = [...new Set(R.map(r => r.ty || "unknown"))].sort((a, b) => count(r => (r.ty || "unknown") === b) - count(r => (r.ty || "unknown") === a));
+  $("#f-type").innerHTML = types.map(t => `<button type="button" class="chip" data-v="${esc(t)}" aria-pressed="false">${esc(t)}<span class="n">${count(r => (r.ty || "unknown") === t)}</span></button>`).join("");
+  const years = [...new Set(R.map(r => r.y).filter(Boolean))].sort();
+  $("#f-y0").innerHTML = years.map(y => `<option${y === years[0] ? " selected" : ""}>${y}</option>`).join("");
+  $("#f-y1").innerHTML = years.map(y => `<option${y === years[years.length - 1] ? " selected" : ""}>${y}</option>`).join("");
+  const mms = [...new Set(R.filter(r => r.met).map(r => r.mm || "unspecified"))];
+  $("#f-metric").innerHTML += mms.map(m => `<option value="${esc(m)}">${esc(m)} (${count(r => r.met && (r.mm || "unspecified") === m)})</option>`).join("");
+  const nset = { eff:r => !!r.met, hw:r => !!r.met && !!r.hw, robot:r => r.robot, onboard:r => r.onb, code:r => !!r.code };
+  document.querySelectorAll("[data-n]").forEach(el => el.textContent = count(nset[el.dataset.n]));
+
+  function pass(r) {
+    if (state.cl.size && !r.c.some(c => state.cl.has(c))) return false;
+    if ((r.rel || 0) < state.rel) return false;
+    if (r.y && (r.y < state.y0 || r.y > state.y1)) return false;
+    if (state.ty.size && !state.ty.has(r.ty || "unknown")) return false;
+    if (state.metric && !(r.met && (r.mm || "unspecified") === state.metric)) return false;
+    if (state.eff && !r.met) return false;
+    if (state.hw && !(r.met && r.hw)) return false;
+    if (state.robot && !r.robot) return false;
+    if (state.onboard && !r.onb) return false;
+    if (state.code && !r.code) return false;
+    if (state.nofound && r.fnd) return false;
+    return true;
+  }
+
+  // ---- rendering ----
+  let terms = [];
+  function hl(s) {
+    s = esc(s);
+    if (!terms.length) return s;
+    const re = new RegExp("(" + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+    return s.replace(re, "<mark>$1</mark>");
+  }
+  const relBar = n => `<span class="rel" title="Relevance ${n || "?"} of 5" aria-label="Relevance ${n || "unrated"} of 5">${[1,2,3,4,5].map(k => `<i class="${k <= (n || 0) ? "on" : ""}"></i>`).join("")}</span>`;
+  function card(r) {
+    const au = r.au.length > 6 ? r.au.slice(0, 6).join(", ") + " et al." : r.au.join(", ");
+    const link = r.u || r.pdf;
+    const title = link ? `<a href="${esc(link)}" target="_blank" rel="noopener">${hl(r.t)}</a>` : hl(r.t);
+    const tags = [relBar(r.rel)]
+      .concat(r.c.map(c => `<span class="tag" title="${esc(CL[c])}">${c}</span>`))
+      .concat(r.mc && r.mc !== "other" ? [`<span class="tag plain">${esc(r.mc)}</span>`] : [])
+      .concat(r.robot ? [`<span class="tag plain">real robot</span>`] : [])
+      .concat(r.onb ? [`<span class="tag plain">onboard</span>`] : [])
+      .concat(r.fnd ? [`<span class="tag plain" title="Generic ML technique that robotics work builds on">foundational technique</span>`] : [])
+      .concat(r.ver ? [] : [`<span class="tag warn">unverified</span>`]);
+    const eff = r.met ? `<div class="eff"><span class="m">${esc(r.mm || "unspecified")}</span><span class="v">${hl(r.met)}</span>${r.hw ? `<span class="hw">on ${hl(r.hw)}</span>` : `<span class="hw">hardware not stated</span>`}</div>` : "";
+    const links = [r.pdf && r.pdf !== link ? `<a href="${esc(r.pdf)}" target="_blank" rel="noopener">PDF</a>` : "",
+      r.code ? `<a href="${esc(r.code)}" target="_blank" rel="noopener">Code</a>` : "", `<span class="id">${esc(r.id)}</span>`].filter(Boolean).join("");
+    const rows = [["Techniques", r.tech.join(", ")], ["Keywords", r.kw.join(", ")], ["Base model", r.base], ["Params", r.params],
+      ["Benchmarks", r.bm.join(", ")], ["Why relevant", r.why], ["Found via", r.via]].filter(x => x[1]);
+    return `<li class="rec"><h2>${title}</h2>
+      <div class="meta">${hl(au)}${r.y ? ` · ${r.y}` : ""}${r.v ? ` · <span class="venue">${hl(r.v)}</span>` : ""}${r.ty ? ` · ${esc(r.ty)}` : ""}</div>
+      <div class="tags">${tags.join("")}</div>
+      ${r.tl ? `<p class="tldr">${hl(r.tl)}</p>` : ""}${eff}
+      <div class="links">${links}</div>
+      ${rows.length ? `<details><summary>Details</summary><dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${hl(v)}</dd>`).join("")}</dl></details>` : ""}</li>`;
+  }
+
+  function run(keepShown) {
+    if (!keepShown) state.shown = 40;
+    const scores = search(state.q);
+    terms = state.q.trim() ? state.q.trim().split(/\s+/).filter(t => t.length > 1) : [];
+    let list = R.filter(r => pass(r) && (!scores || scores.has(r.i)));
+    const byRel = (a, b) => (b.rel || 0) - (a.rel || 0) || (b.y || 0) - (a.y || 0);
+    const s = state.sort === "best" && !scores ? "rel" : state.sort;
+    if (s === "best") list.sort((a, b) => scores.get(b.i) - scores.get(a.i));
+    else if (s === "rel") list.sort(byRel);
+    else if (s === "new") list.sort((a, b) => (b.y || 0) - (a.y || 0) || byRel(a, b));
+    else list.sort((a, b) => (a.y || 9999) - (b.y || 9999) || byRel(a, b));
+    $("#count").innerHTML = `<b>${list.length.toLocaleString()}</b> of ${R.length.toLocaleString()} items`;
+    $("#results").innerHTML = list.length ? list.slice(0, state.shown).map(card).join("")
+      : `<li class="empty">No items match. Try fewer words, or clear some filters.</li>`;
+    $("#more").hidden = list.length <= state.shown;
+    $("#more").textContent = `Show more (${(list.length - state.shown).toLocaleString()} left)`;
+  }
+
+  let timer;
+  $("#q").addEventListener("input", e => { clearTimeout(timer); timer = setTimeout(() => { state.q = e.target.value; run(); }, 120); });
+  document.querySelectorAll(".examples button").forEach(b => b.addEventListener("click", () => { $("#q").value = b.dataset.q; state.q = b.dataset.q; state.sort = "best"; $("#sort").value = "best"; run(); }));
+  $("#f-cluster").addEventListener("change", e => { e.target.checked ? state.cl.add(e.target.value) : state.cl.delete(e.target.value); run(); });
+  $("#f-rel").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return;
+    state.rel = +b.dataset.v; $("#f-rel").querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b)); run(); });
+  $("#f-type").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return;
+    const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", on);
+    on ? state.ty.add(b.dataset.v) : state.ty.delete(b.dataset.v); run(); });
+  $("#f-y0").addEventListener("change", e => { state.y0 = +e.target.value; run(); });
+  $("#f-y1").addEventListener("change", e => { state.y1 = +e.target.value; run(); });
+  $("#f-metric").addEventListener("change", e => { state.metric = e.target.value; run(); });
+  ["eff", "hw", "robot", "onboard", "code", "nofound"].forEach(k => $("#f-" + k).addEventListener("change", e => { state[k] = e.target.checked; run(); }));
+  $("#sort").addEventListener("change", e => { state.sort = e.target.value; run(); });
+  $("#more").addEventListener("click", () => { state.shown += 40; run(true); });
+  $("#reset").addEventListener("click", () => {
+    Object.assign(state, { q:"", rel:0, y0:+years[0], y1:+years[years.length - 1], metric:"", eff:false, hw:false, robot:false, onboard:false, code:false, nofound:false });
+    state.cl.clear(); state.ty.clear(); $("#q").value = "";
+    document.querySelectorAll(".filters input[type=checkbox]").forEach(x => x.checked = false);
+    document.querySelectorAll("#f-type .chip").forEach(x => x.setAttribute("aria-pressed", "false"));
+    document.querySelectorAll("#f-rel .chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === "0"));
+    $("#f-y0").value = years[0]; $("#f-y1").value = years[years.length - 1]; $("#f-metric").value = ""; run();
+  });
+  state.y0 = +years[0]; state.y1 = +years[years.length - 1];
+  run();
+})();
+</script>

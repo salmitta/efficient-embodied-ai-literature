@@ -1,0 +1,222 @@
+[
+ {
+  "id": "2301.04104",
+  "title": "Mastering Diverse Domains through World Models",
+  "given": "Nature 2025 (arXiv 2023)",
+  "dblp": [],
+  "s2_venue": "arXiv.org",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2301-04104",
+  "s2_year": 2023
+ },
+ {
+  "id": "2310.16828",
+  "title": "TD-MPC2: Scalable, Robust World Models for Continuous Control",
+  "given": "ICLR 2024",
+  "dblp": [],
+  "s2_venue": "International Conference on Learning Representations",
+  "s2_journal": "ArXiv",
+  "dblp_key": "conf/iclr/00010024",
+  "s2_year": 2023
+ },
+ {
+  "id": "2402.15391",
+  "title": "Genie: Generative Interactive Environments",
+  "given": "ICML 2024",
+  "dblp": [],
+  "s2_venue": "International Conference on Machine Learning",
+  "s2_journal": "ArXiv",
+  "dblp_key": "conf/icml/BruceDEPS0LMSAA24",
+  "s2_year": 2024
+ },
+ {
+  "id": "2310.06114",
+  "title": "Learning Interactive Real-World Simulators",
+  "given": "ICLR 2024 (Outstanding Paper)",
+  "dblp": [],
+  "s2_venue": "International Conference on Learning Representations",
+  "s2_journal": "ArXiv",
+  "dblp_key": "conf/iclr/YangDGTKSA24",
+  "s2_year": 2023
+ },
+ {
+  "id": "2412.14803",
+  "title": "Video Prediction Policy: A Generalist Robot Policy with Predictive Visual Representations",
+  "given": "ICML 2025",
+  "dblp": [],
+  "s2_venue": "International Conference on Machine Learning",
+  "s2_journal": "ArXiv",
+  "dblp_key": "conf/icml/HuGWCWZSL025",
+  "s2_year": 2024
+ },
+ {
+  "id": "2405.15223",
+  "title": "iVideoGPT: Interactive VideoGPTs are Scalable World Models",
+  "given": "NeurIPS 2024",
+  "dblp": [],
+  "s2_venue": "Neural Information Processing Systems",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2405-15223",
+  "s2_year": 2024
+ },
+ {
+  "id": "2502.04296",
+  "title": "Learning Real-World Action-Video Dynamics with Heterogeneous Masked Autoregression",
+  "given": "CVPR 2025",
+  "dblp": [],
+  "s2_venue": "arXiv.org",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2502-04296",
+  "s2_year": 2025
+ },
+ {
+  "id": "2506.08009",
+  "title": "Self Forcing: Bridging the Train-Test Gap in Autoregressive Video Diffusion",
+  "given": "NeurIPS 2025",
+  "dblp": [],
+  "s2_venue": "Neural Information Processing Systems",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2506-08009",
+  "s2_year": 2025
+ },
+ {
+  "id": "2505.14357",
+  "title": "Vid2World: Crafting Video Diffusion Models to Interactive World Models",
+  "given": "ICLR 2026",
+  "dblp": [],
+  "s2_venue": "arXiv.org",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2505-14357",
+  "s2_year": 2025
+ },
+ {
+  "id": "2411.04983",
+  "title": "DINO-WM: World Models on Pre-trained Visual Features enable Zero-shot Planning",
+  "given": "ICML 2025",
+  "dblp": [],
+  "s2_venue": "International Conference on Machine Learning",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2411-04983",
+  "s2_year": 2024
+ },
+ {
+  "id": "2503.00653",
+  "title": "Discrete Codebook World Models for Continuous Control",
+  "given": "ICLR 2025",
+  "dblp": [],
+  "s2_venue": "International Conference on Learning Representations",
+  "s2_journal": "ArXiv",
+  "dblp_key": "conf/iclr/ScannellNK0LSP25",
+  "s2_year": 2025
+ },
+ {
+  "id": "2203.04955",
+  "title": "Temporal Difference Learning for Model Predictive Control",
+  "given": "ICML 2022",
+  "dblp": [],
+  "s2_venue": "International Conference on Machine Learning",
+  "s2_journal": null,
+  "dblp_key": "journals/corr/abs-2203-04955",
+  "s2_year": 2022
+ },
+ {
+  "id": "2505.00779",
+  "title": "Uncertainty-aware Latent Safety Filters for Avoiding Out-of-Distribution Failures",
+  "given": "CoRL 2025",
+  "dblp": [],
+  "s2_venue": "arXiv.org",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2505-00779",
+  "s2_year": 2025
+ },
+ {
+  "id": "2502.00935",
+  "title": "Generalizing Safety Beyond Collision-Avoidance via Latent-Space Reachability Analysis",
+  "given": "RSS 2025",
+  "dblp": [],
+  "s2_venue": "Robotics",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2502-00935",
+  "s2_year": 2025
+ },
+ {
+  "id": "2310.17552",
+  "title": "Model-Based Runtime Monitoring with Interactive Imitation Learning",
+  "given": "CoRL 2023",
+  "dblp": [],
+  "s2_venue": "IEEE International Conference on Robotics and Automation",
+  "s2_journal": "2024 IEEE International Conference on Robotics and Automation (ICRA)",
+  "dblp_key": "conf/icra/LiuDMZ24",
+  "s2_year": 2023
+ },
+ {
+  "id": "2410.22689",
+  "title": "Multi-Task Interactive Robot Fleet Learning with Visual World Models",
+  "given": "CoRL 2024",
+  "dblp": [],
+  "s2_venue": "Conference on Robot Learning",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2410-22689",
+  "s2_year": 2024
+ },
+ {
+  "id": "2502.01828",
+  "title": "From Foresight to Forethought: VLM-In-the-Loop Policy Steering via Latent Alignment",
+  "given": "RSS 2025",
+  "dblp": [],
+  "s2_venue": "Robotics",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2502-01828",
+  "s2_year": 2025
+ },
+ {
+  "id": "2302.00111",
+  "title": "Learning Universal Policies via Text-Guided Video Generation",
+  "given": "NeurIPS 2023",
+  "dblp": [],
+  "s2_venue": "Neural Information Processing Systems",
+  "s2_journal": "ArXiv",
+  "dblp_key": "conf/nips/DuY0DN0SA23",
+  "s2_year": 2023
+ },
+ {
+  "id": "2503.00200",
+  "title": "Unified Video Action Model",
+  "given": "RSS 2025",
+  "dblp": [],
+  "s2_venue": "Robotics",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2503-00200",
+  "s2_year": 2025
+ },
+ {
+  "id": "2405.12399",
+  "title": "Diffusion for World Modeling: Visual Details Matter in Atari",
+  "given": "NeurIPS 2024",
+  "dblp": [],
+  "s2_venue": "Neural Information Processing Systems",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2405-12399",
+  "s2_year": 2024
+ },
+ {
+  "id": "2405.07503",
+  "title": "Consistency Policy: Accelerated Visuomotor Policies via Consistency Distillation",
+  "given": "arXiv (RSS 2024 per project page; not re-verified)",
+  "dblp": [],
+  "s2_venue": "Robotics: Science and Systems Conference",
+  "s2_journal": "ArXiv",
+  "dblp_key": "conf/rss/PrasadLWZB24",
+  "s2_year": 2024
+ },
+ {
+  "id": "2410.24164",
+  "title": "$\\pi_0$: A Vision-Language-Action Flow Model for General Robot Control",
+  "given": "arXiv / RSS 2025",
+  "dblp": [],
+  "s2_venue": "arXiv.org",
+  "s2_journal": "ArXiv",
+  "dblp_key": "journals/corr/abs-2410-24164",
+  "s2_year": 2024
+ }
+]

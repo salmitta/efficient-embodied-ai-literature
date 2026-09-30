@@ -1,0 +1,62 @@
+{
+  "raw_records": 2883,
+  "bad_lines": 0,
+  "files": [
+    "_work/raw/C1.jsonl",
+    "_work/raw/C2.jsonl",
+    "_work/raw/C3.jsonl",
+    "_work/raw/C4.jsonl",
+    "_work/raw/C5.jsonl",
+    "_work/raw/C6.jsonl",
+    "_work/raw/C7.jsonl",
+    "_work/raw/C8.jsonl",
+    "_work/raw/C9.jsonl",
+    "_work/raw2/GAP_A.jsonl",
+    "_work/raw2/GAP_B.jsonl",
+    "_work/raw2/SB_1.jsonl",
+    "_work/raw2/SB_2.jsonl",
+    "_work/raw2/SB_3.jsonl",
+    "_work/raw2/SB_4.jsonl",
+    "_work/raw2/SB_5.jsonl",
+    "_work/raw2/SB_6.jsonl"
+  ],
+  "unique": 2232,
+  "dupes_merged": {
+    "arxiv": 625,
+    "url": 22,
+    "title_exact": 3,
+    "title_fuzzy": 1
+  },
+  "per_cluster": {
+    "C1": 733,
+    "C2": 365,
+    "C3": 453,
+    "C4": 363,
+    "C5": 245,
+    "C6": 218,
+    "C7": 539,
+    "C8": 522,
+    "C9": 260
+  },
+  "unverified": 1,
+  "with_metrics": 617,
+  "relevance_hist": {
+    "1": 5,
+    "2": 497,
+    "3": 953,
+    "4": 529,
+    "5": 248
+  },
+  "types": {
+    "benchmark": 88,
+    "blog": 39,
+    "paper": 465,
+    "preprint": 1564,
+    "repo": 23,
+    "talk": 2,
+    "tech-report": 51
+  },
+  "foundational": 138,
+  "built": "2026-09-30",
+  "r2_seeds": 571
+}
