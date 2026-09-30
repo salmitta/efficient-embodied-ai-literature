@@ -29,6 +29,13 @@ Everything runs in the visitor's browser. There is no server and no API key.
 - **Topic overview**: for any search or filter, a deterministic summary of the best-matching items: counts by year and cluster, top techniques, hardware mentioned, evidence shares, and reported efficiency numbers grouped by `metric_measures`.
 - **Summarize this topic with AI** (optional): runs Qwen2.5 1.5B or 3B in the browser through [WebLLM](https://github.com/mlc-ai/web-llm) on WebGPU (about a 1 GB or 2 GB one-time download). It sees only the top 16 results and cites them as numbered links. It needs a recent desktop Chrome or Edge, or Safari with WebGPU. The output is AI-generated and should be checked against the cited items.
 
+- **Propose research ideas** (optional, same in-browser model; the 3B model is recommended): proposes 3 testable ideas for the current query. Each idea has an idea, what it builds on, the gap it addresses, a first experiment (model, benchmark, hardware, metric type) and a risk. The ideas are grounded in:
+  - the top 12 retrieved papers, which each idea must cite;
+  - gap signals computed exactly from the matching set, such as the share with real-robot evaluation or onboard deployment, metric types never reported, clusters barely represented, and common benchmarks and hardware;
+  - the workshop's five key questions.
+
+  An optional constraints box (e.g. "must run on Jetson Orin NX; simulation only") steers the ideas. After generation, the page flags any idea that cites no retrieved paper, and shows the exact evidence the model was given. The ideas are starting points, not vetted proposals.
+
 Opening `docs/index.html` directly from disk works for keyword search. Match by meaning needs the hosted site, or any local web server (`python3 -m http.server` inside `docs/`).
 
 ## Clusters

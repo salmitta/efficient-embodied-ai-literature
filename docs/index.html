@@ -165,6 +165,12 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 .ai-refs { font-size: 12.5px; color: var(--muted); margin: 0; padding-left: 22px; }
 .ai-refs li { margin-bottom: 2px; }
 .ai-warn { font-size: 12px; color: var(--muted); margin: 0; }
+#ai-constraints { width: 100%; font: 14px var(--font-body); padding: 8px 11px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); color: var(--ink); }
+#ai-out h4.idea { font: 600 15px/1.3 var(--font-display); margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line); }
+#ai-out .uncited { font-size: 12.5px; color: var(--warn); margin: -2px 0 8px; }
+.ai-signals { font-size: 12.5px; color: var(--muted); }
+.ai-signals summary { cursor: pointer; }
+.ai-signals pre { white-space: pre-wrap; font: 12px/1.5 var(--font-data); margin: 6px 0 0; overflow-wrap: anywhere; }
 footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-block: 16px 30px; }
 @media (prefers-reduced-motion: no-preference) { .rec { transition: border-color .15s; } .rec:hover { border-color: var(--accent); } }
 </style>
@@ -236,13 +242,15 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       <div class="ov-grid" id="ov-grid"></div>
       <div class="ai">
         <div class="ai-row">
-          <button class="btn primary" id="ai-go" type="button">Summarize this topic with AI</button>
+          <button class="btn primary" id="ai-go" type="button">Summarize this topic</button>
+          <button class="btn primary" id="ai-ideas" type="button">Propose research ideas</button>
           <select id="ai-model" aria-label="AI model">
             <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B · faster, about 1 GB download</option>
-            <option value="Qwen2.5-3B-Instruct-q4f16_1-MLC">Qwen2.5 3B · better, about 2 GB download</option>
+            <option value="Qwen2.5-3B-Instruct-q4f16_1-MLC">Qwen2.5 3B · better, recommended for ideas, about 2 GB download</option>
           </select>
           <span id="ai-status"></span>
         </div>
+        <input id="ai-constraints" type="text" autocomplete="off" placeholder="Constraints for ideas (optional), e.g. must run on Jetson Orin NX; simulation only; 3-month project" aria-label="Constraints for research ideas">
         <p class="ai-warn">Runs a small open model inside your browser (WebGPU; recent Chrome, Edge or Safari). Nothing is sent to a server. The model is downloaded once and cached. It only sees the top results below, and it can still make mistakes, so check the cited items.</p>
         <div id="ai-out" aria-live="polite"></div>
       </div>
@@ -462,9 +470,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   const AI = { engine:null, model:"", busy:false };
   const aiStatus = t => { $("#ai-status").textContent = t; };
   function mdLite(text, refs) {
-    // Small models often write "(Record 3)" or "Records 2 and 5"; normalise to [3] / [2, 5] and drop placeholder "[n]".
-    text = text.replace(/\(?\b(?:Records?|Refs?\.?|Items?)\s+(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)\)?/gi, (m, g) => "[" + g.split(/\s*(?:,|and|&)\s*/).join(", ") + "]")
-               .replace(/\s*\[n\]/gi, "");
+    text = normCites(text);
     const lines = esc(text).split(/\n/);
     let html = "", inList = false;
     const inline = s => s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[(\d{1,2}(?:\s*,\s*\d{1,2})*)\]/g, (m, g) =>
@@ -479,12 +485,66 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     }
     return html + (inList ? "</ul>" : "");
   }
-  async function summarize() {
+  // Deterministic evidence about what the matching literature does and does not cover; fed to the idea proposer.
+  const WORKSHOP_QS = [
+    "Do efficiency techniques compose (e.g. quantization + distillation + chunking)?",
+    "How do you interrupt or certify open-loop action-chunk execution?",
+    "What is the total cost of ownership of fleet-scale onboard vs. cloud inference?",
+    "How can efficiency be evaluated across hardware in a comparable way?",
+    "Can OpenVLA-7B-class models be compressed to fit 16 GB Jetson-class devices without losing LIBERO success?"];
+  function gapSignals(list) {
+    const top = list.slice(0, 80), n = top.length || 1;
+    const pct = f => Math.round(100 * top.filter(f).length / n);
+    const eff = top.filter(r => r.met);
+    const mm = tally(eff.map(r => r.mm || "unspecified"));
+    const allMM = ["closed-loop control", "open-loop chunk rate", "throughput", "relative latency", "relative memory", "energy"];
+    const missing = allMM.filter(m => !mm.some(([k]) => k === m));
+    const cl = new Map(tally(top.flatMap(r => r.c)));
+    const thin = Object.keys(CL).filter(c => c !== "C9" && (cl.get(c) || 0) <= Math.max(1, n * 0.04)).map(c => `${c} ${CL[c]}`);
+    const bm = tally(top.flatMap(r => r.bm.map(x => x.trim()))).slice(0, 6).map(([k, v]) => `${k} (${v})`);
+    const hw = tally(top.flatMap(r => [...new Set((r.hw.match(HW_RE) || []).map(h => h.replace(/\s+/g, " ")))])).slice(0, 5).map(([k, v]) => `${k} (${v})`);
+    return [
+      `${top.length} best-matching items considered; ${pct(r => r.y >= 2026)}% are from 2026, ${pct(r => r.y && r.y <= 2023)}% from 2023 or earlier.`,
+      `Real-robot evaluation: ${pct(r => r.robot)}%. Onboard deployment: ${pct(r => r.onb)}%. Released code: ${pct(r => r.code)}%.`,
+      `Report efficiency numbers: ${pct(r => r.met)}%; of those, ${eff.length ? Math.round(100 * eff.filter(r => r.hw).length / eff.length) : 0}% state the hardware.`,
+      `Metric types reported: ${mm.map(([k, v]) => `${k} (${v})`).join(", ") || "none"}. Never reported here: ${missing.join(", ") || "none"}.`,
+      `Clusters barely represented in this set: ${thin.join("; ") || "none"}.`,
+      `Most used benchmarks: ${bm.join(", ") || "none recorded"}. Hardware mentioned: ${hw.join(", ") || "none"}.`];
+  }
+
+  const normCites = text => text
+    .replace(/\(?\b(?:Records?|Refs?\.?|Items?)\s+(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)\)?/gi, (m, g) => "[" + g.split(/\s*(?:,|and|&)\s*/).join(", ") + "]")
+    .replace(/\b(?:Records?|Refs?\.?|Items?)\s*(?=\[\d)/gi, "")
+    .replace(/\s*\[n\]/gi, "");
+  const recLine = (r, n, max) => {
+    let s = `[${n + 1}] ${r.t} (${r.y || "n.d."}${r.v ? ", " + r.v : ""}). ${r.tl}`;
+    if (r.met) s += ` Reported: ${r.met} (measures: ${r.mm || "unspecified"}${r.hw ? "; hardware: " + r.hw : "; hardware not stated"}).`;
+    if (r.bm.length) s += ` Benchmarks: ${r.bm.slice(0, 4).join(", ")}.`;
+    return s.length > max ? s.slice(0, max - 1) + "…" : s;
+  };
+  const RULES = "Use only the numbered records provided. Cite records inline with their bracketed numbers, for example: 'Inpainting keeps chunk boundaries smooth under delay [2][5].' Never write the word 'Record'. Never invent papers, results or numbers. Efficiency numbers with different 'measures' types (closed-loop control, open-loop chunk rate, throughput, relative latency, relative memory, energy) are not comparable, so never rank or compare numbers across types.";
+
+  function buildPrompt(kind, refs, topic) {
+    if (kind === "summary") {
+      const ctx = refs.map((r, n) => recLine(r, n, 520)).join("\n");
+      return { max_tokens:650, temperature:0.3, messages:[
+        { role:"system", content:"You summarize robotics research literature for researchers. " + RULES + " Be concise and concrete." },
+        { role:"user", content:`Topic: "${topic}"\n\nRecords:\n${ctx}\n\nWrite four short sections with these headings:\n### Overview\n2-3 sentences.\n### Main approaches\nBullets, each with citations.\n### Reported results\nBullets; for each number say what it measures and on what hardware.\n### Gaps\nOpen problems visible in these records.\nStay under 330 words.` }] };
+    }
+    const ctx = refs.map((r, n) => recLine(r, n, 440)).join("\n");
+    const cons = $("#ai-constraints").value.trim();
+    return { max_tokens:900, temperature:0.6, messages:[
+      { role:"system", content:"You are a research advisor for a workshop on making robot foundation models fast, cheap and safe enough to run on the robot. You propose concrete, testable research ideas grounded in the literature you are given. " + RULES + " When you mention a record, describe only what that record's own line says about it. Each idea must build on or contrast with specific records, and must target a gap shown by the records or the evidence statistics. Prefer ideas a small team could test." },
+      { role:"user", content:`Topic: "${topic}"\n${cons ? `Constraints from the researcher: ${cons}\n` : ""}\nRecords:\n${ctx}\n\nEvidence about this set of papers (computed from the database):\n- ${gapSignals(current).join("\n- ")}\n\nWorkshop key questions:\n- ${WORKSHOP_QS.join("\n- ")}\n\nPropose 3 research ideas. Use exactly this format for each, replacing TITLE with your own 5-10 word title:\n### Idea 1: TITLE\n- **Idea:** 2 sentences.\n- **Builds on:** which records and how, with citations.\n- **Gap addressed:** what is missing, citing records or the evidence above.\n- **First experiment:** model, benchmark or task, hardware, and the metric, naming its type (e.g. closed-loop control rate, energy per action).\n- **Risk:** the main way it could fail.\nStay under 480 words.` }] };
+  }
+
+  const aiButtons = on => { $("#ai-go").disabled = !on; $("#ai-ideas").disabled = !on; };
+  async function runAI(kind) {
     if (AI.busy) return;
     if (!navigator.gpu) { aiStatus("This browser has no WebGPU. Try a recent desktop Chrome or Edge."); return; }
-    const refs = current.slice(0, 16);
+    const refs = current.slice(0, kind === "summary" ? 16 : 12);
     if (!refs.length) return;
-    AI.busy = true; $("#ai-go").disabled = true;
+    AI.busy = true; aiButtons(false);
     const topic = state.q.trim() || "the currently filtered set of items";
     try {
       const model = $("#ai-model").value;
@@ -492,27 +552,35 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         aiStatus("Loading the AI library…");
         const webllm = await import("https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/+esm");
         if (AI.engine) await AI.engine.unload();
-        AI.engine = await webllm.CreateMLCEngine(model, { initProgressCallback: p => aiStatus(p.text.replace(/\s*\[.*?\]\s*/g, " ").slice(0, 110)) });
+        AI.engine = await webllm.CreateMLCEngine(model, { initProgressCallback: p => aiStatus(p.text.replace(/\s*\[.*?\]\s*/g, " ").slice(0, 110)) },
+          { context_window_size: 8192 });
         AI.model = model;
       }
-      aiStatus("Writing…");
-      const ctx = refs.map((r, n) => {
-        let s = `[${n + 1}] ${r.t} (${r.y || "n.d."}${r.v ? ", " + r.v : ""}). ${r.tl}`;
-        if (r.met) s += ` Reported: ${r.met} (measures: ${r.mm || "unspecified"}${r.hw ? "; hardware: " + r.hw : "; hardware not stated"}).`;
-        return s.length > 520 ? s.slice(0, 517) + "…" : s;
-      }).join("\n");
-      const messages = [
-        { role:"system", content:"You summarize robotics research literature for researchers. Use only the numbered records provided. Cite records inline with their bracketed numbers, for example: 'Inpainting keeps chunk boundaries smooth under delay [2][5].' Never write the word 'Record'. Never invent papers, results or numbers. Efficiency numbers with different 'measures' types (closed-loop control, open-loop chunk rate, throughput, relative latency, relative memory, energy) are not comparable, so never rank or compare numbers across types. Be concise and concrete." },
-        { role:"user", content:`Topic: "${topic}"\n\nRecords:\n${ctx}\n\nWrite four short sections with these headings:\n### Overview\n2-3 sentences.\n### Main approaches\nBullets, each with citations.\n### Reported results\nBullets; for each number say what it measures and on what hardware.\n### Gaps\nOpen problems visible in these records.\nStay under 330 words.` }];
+      aiStatus(kind === "summary" ? "Writing the summary…" : "Drafting research ideas…");
+      const { messages, max_tokens, temperature } = buildPrompt(kind, refs, topic);
       let text = "";
-      const stream = await AI.engine.chat.completions.create({ messages, stream:true, temperature:0.3, max_tokens:650 });
-      for await (const c of stream) { text += c.choices[0]?.delta?.content || ""; $("#ai-out").innerHTML = mdLite(text, refs); }
-      $("#ai-out").innerHTML = mdLite(text, refs) + `<ol class="ai-refs">${refs.map(r => `<li><a href="${esc(r.u || r.pdf || "#r-" + r.i)}" target="_blank" rel="noopener">${esc(r.t)}</a>${r.y ? ` (${r.y})` : ""}</li>`).join("")}</ol>`;
-      aiStatus(`Summary of the top ${refs.length} results for “${topic.slice(0, 60)}”. AI-generated; check the sources.`);
+      const render = () => {
+        let html = mdLite(kind === "ideas" ? text.replace(/(#{1,4}\s*Idea\s*\d+)\s*:\s*(?:<[^>\n]*>|TITLE|\[[^\]\n]*title[^\]\n]*\])\s*$/gim, "$1") : text, refs);
+        if (kind === "ideas") html = html.replace(/<h4>/g, '<h4 class="idea">');
+        return html;
+      };
+      const stream = await AI.engine.chat.completions.create({ messages, stream:true, temperature, max_tokens });
+      for await (const c of stream) { text += c.choices[0]?.delta?.content || ""; $("#ai-out").innerHTML = render(); }
+      let html = render();
+      if (kind === "ideas") {
+        // Flag ideas that cite none of the retrieved papers.
+        const parts = normCites(text).split(/^\s*(?:#{1,4}\s+.*|\*\*[^*\n]+\*\*:?)\s*$/m).slice(1).filter(p => p.trim());
+        const bad = parts.map((p, k) => /\[\d/.test(p) ? 0 : k + 1).filter(Boolean);
+        if (bad.length) html += `<p class="uncited">Idea ${bad.join(" and ")} cites none of the retrieved papers. Treat it as speculative.</p>`;
+        html += `<details class="ai-signals"><summary>Evidence given to the model</summary><pre>${esc(gapSignals(current).join("\n"))}</pre></details>`;
+      }
+      $("#ai-out").innerHTML = html + `<ol class="ai-refs">${refs.map(r => `<li><a href="${esc(r.u || r.pdf || "#r-" + r.i)}" target="_blank" rel="noopener">${esc(r.t)}</a>${r.y ? ` (${r.y})` : ""}</li>`).join("")}</ol>`;
+      aiStatus(kind === "summary" ? `Summary of the top ${refs.length} results for “${topic.slice(0, 60)}”. AI-generated; check the sources.`
+        : `Research ideas grounded in the top ${refs.length} results for “${topic.slice(0, 60)}”. AI-generated starting points, not vetted proposals.`);
     } catch (e) {
-      aiStatus("The AI summary failed: " + (e && e.message ? e.message.slice(0, 140) : "unknown error") + ". Try the smaller model, or a desktop browser with WebGPU.");
+      aiStatus("The AI run failed: " + (e && e.message ? e.message.slice(0, 140) : "unknown error") + ". Try the smaller model, or a desktop browser with WebGPU.");
     }
-    AI.busy = false; $("#ai-go").disabled = false;
+    AI.busy = false; aiButtons(true);
   }
 
   let runId = 0;
@@ -544,7 +612,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   $("#q").addEventListener("input", e => { loadSemantic(); clearTimeout(timer); timer = setTimeout(() => { state.q = e.target.value; run(); }, 180); });
   $("#q").addEventListener("focus", loadSemantic, { once:true });
   $("#sem").addEventListener("change", e => { SEM.on = e.target.checked; if (SEM.on) { if (SEM.ready) semStatus("on", true); else loadSemantic(); } else semStatus("off"); run(); });
-  $("#ai-go").addEventListener("click", summarize);
+  $("#ai-go").addEventListener("click", () => runAI("summary"));
+  $("#ai-ideas").addEventListener("click", () => runAI("ideas"));
   $("#ov-grid").addEventListener("click", e => { const b = e.target.closest("button[data-q]"); if (!b) return;
     $("#q").value = b.dataset.q; state.q = b.dataset.q; run(); window.scrollTo({ top: 0, behavior: "smooth" }); });
   document.querySelectorAll(".examples button").forEach(b => b.addEventListener("click", () => { loadSemantic(); $("#q").value = b.dataset.q; state.q = b.dataset.q; state.sort = "best"; $("#sort").value = "best"; run(); }));
