@@ -18,7 +18,18 @@ This database covers the research scope of the CoRL 2026 workshop
 | `efficiency_table.csv` | The 617 items that report efficiency numbers (model, params, hardware, metric, what it measures, benchmarks). |
 | `overview.md` | Counts, technique taxonomy, top 30 must-reads, answers to the workshop's key questions, research gaps, items needing review. |
 | `search_log.md` | Every query run and how the citation snowball was done. |
-| `docs/` | The searchable website (GitHub Pages). `docs/index.html` is self-contained and also works opened straight from disk. |
+| `docs/` | The searchable website (GitHub Pages): https://salmitta.github.io/efficient-embodied-ai-literature/ |
+
+## Website search
+
+Everything runs in the visitor's browser. There is no server and no API key.
+
+- **Keyword search** (MiniSearch): ranked, typo-tolerant matching over titles, TL;DRs, techniques, keywords, authors, venue and hardware.
+- **Match by meaning** (on by default): the query is embedded in the browser with `Xenova/bge-small-en-v1.5` (about 34 MB, downloaded once). It is compared against the precomputed record embeddings in `docs/embeddings.bin`. Keyword and meaning scores are blended: short queries (names, acronyms) lean on keywords, longer descriptive queries lean on meaning.
+- **Topic overview**: for any search or filter, a deterministic summary of the best-matching items: counts by year and cluster, top techniques, hardware mentioned, evidence shares, and reported efficiency numbers grouped by `metric_measures`.
+- **Summarize this topic with AI** (optional): runs Qwen2.5 1.5B or 3B in the browser through [WebLLM](https://github.com/mlc-ai/web-llm) on WebGPU (about a 1 GB or 2 GB one-time download). It sees only the top 16 results and cites them as numbered links. It needs a recent desktop Chrome or Edge, or Safari with WebGPU. The output is AI-generated and should be checked against the cited items.
+
+Opening `docs/index.html` directly from disk works for keyword search. Match by meaning needs the hosted site, or any local web server (`python3 -m http.server` inside `docs/`).
 
 ## Clusters
 
@@ -106,7 +117,8 @@ As of 2026-09-30:
 ```bash
 python3 _work/merge.py          # raw subagent outputs in _work/raw, _work/raw2 -> literature_db.*, by_cluster/, efficiency_table.csv
 python3 _work/build_reports.py  # -> overview.md, search_log.md
-python3 _work/build_site.py     # -> docs/ (website)
+cd _work && npm install && node embed.mjs && cd ..   # -> docs/embeddings.bin (needs Node 22+; rerun whenever the database changes)
+python3 _work/build_site.py     # -> docs/ (website; warns if the embeddings are out of date)
 ```
 
 ## Record schema

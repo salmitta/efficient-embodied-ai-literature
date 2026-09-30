@@ -37,6 +37,11 @@ def main():
     title_end = body.index("</style>") + len("</style>")
     html = head + body[:title_end] + "\n</head>\n<body>\n" + body[title_end:] + "\n</body>\n</html>\n"
     open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(html)
+    meta = os.path.join(OUT, "embeddings.json")
+    em = json.load(open(meta)) if os.path.exists(meta) else {}
+    if em.get("n") != len(db) or em.get("first") != db[0]["id"] or em.get("last") != db[-1]["id"]:
+        print("WARNING: docs/embeddings.bin is missing or out of date; semantic search will switch itself off. "
+              "Run: cd _work && npm install && node embed.mjs")
     open(os.path.join(OUT, ".nojekyll"), "w").close()  # serve files as-is on GitHub Pages
     print(f"docs/index.html: {os.path.getsize(os.path.join(OUT, 'index.html')) / 1e6:.2f} MB, {len(db)} records")
 

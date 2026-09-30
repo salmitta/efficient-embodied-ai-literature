@@ -120,6 +120,45 @@ ol.results { list-style: none; margin: 0; padding: 0; display: flex; flex-direct
 mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1px; }
 .empty { padding: 30px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); }
 #more { margin: 16px auto 0; display: block; }
+.semtoggle { display: flex; gap: 7px; align-items: center; font-size: 13.5px; cursor: pointer; white-space: nowrap; }
+#sem-status { font: 12px var(--font-data); color: var(--muted); }
+#sem-status.on { color: var(--accent); }
+
+.overview { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 14px; }
+.ov-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.ov-head h2 { font: 600 16px/1.2 var(--font-display); margin: 0; letter-spacing: .01em; }
+.ov-head p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.ov-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px 22px; }
+.ov-grid > div { min-width: 0; }
+.ov-grid h3 { font: 600 11.5px/1.2 var(--font-data); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 7px; }
+.bars { display: flex; align-items: flex-end; gap: 3px; height: 64px; }
+.bars div { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-width: 0; height: 100%; }
+.bars b { display: block; width: 100%; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 2px; }
+.bars span { font: 10px var(--font-data); color: var(--muted); margin-top: 3px; }
+.cnt { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; }
+.cnt li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: baseline; }
+.cnt li > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cnt .n { font: 12px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
+.cnt button { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.effgrp { display: flex; flex-direction: column; gap: 8px; }
+.effgrp .g { font-size: 13px; }
+.effgrp .g .m { font: 500 11px var(--font-data); text-transform: uppercase; letter-spacing: .05em; color: var(--signal); }
+.effgrp .g ul { margin: 3px 0 0; padding-left: 16px; }
+.effgrp .g li { overflow-wrap: anywhere; }
+.effgrp .v { font: 12.5px var(--font-data); }
+.ai { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.ai-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 500; }
+.btn.primary:disabled { opacity: .6; cursor: progress; }
+#ai-status { font: 12px var(--font-data); color: var(--muted); }
+#ai-out { font-size: 14.5px; max-width: 82ch; }
+#ai-out p { margin: 0 0 8px; }
+#ai-out ul { margin: 0 0 8px; padding-left: 20px; }
+#ai-out h4 { font: 600 13px var(--font-body); margin: 10px 0 4px; }
+#ai-out a.cite { font: 500 12px var(--font-data); text-decoration: none; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; }
+.ai-refs { font-size: 12.5px; color: var(--muted); margin: 0; padding-left: 22px; }
+.ai-refs li { margin-bottom: 2px; }
+.ai-warn { font-size: 12px; color: var(--muted); margin: 0; }
 footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-block: 16px 30px; }
 @media (prefers-reduced-motion: no-preference) { .rec { transition: border-color .15s; } .rec:hover { border-color: var(--accent); } }
 </style>
@@ -135,11 +174,12 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     <div class="qrow">
       <div class="qbox">
         <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Search titles, summaries, techniques, authors, hardware…" aria-label="Search the database">
+        <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Search by topic, technique, author, hardware… or describe what you need" aria-label="Search the database">
       </div>
+      <label class="semtoggle" title="Also match by meaning, using a small embedding model that runs in your browser"><input type="checkbox" id="sem" checked> Match by meaning <span id="sem-status">starts on first search</span></label>
     </div>
     <div class="examples"><span>Try:</span>
-      <button type="button" data-q="quantization jetson">quantization jetson</button>
+      <button type="button" data-q="fit a 7B VLA on a 16 GB Jetson">fit a 7B VLA on a 16 GB Jetson</button>
       <button type="button" data-q="real-time chunking">real-time chunking</button>
       <button type="button" data-q="world action model distillation">world action model distillation</button>
       <button type="button" data-q="control barrier function">control barrier function</button>
@@ -182,6 +222,22 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         <li>Numbers are as the authors state them; nothing was re-measured.</li>
       </ul>
     </details>
+    <section class="overview" id="overview" hidden aria-label="Topic overview">
+      <div class="ov-head"><h2>Topic overview</h2><p id="ov-note"></p></div>
+      <div class="ov-grid" id="ov-grid"></div>
+      <div class="ai">
+        <div class="ai-row">
+          <button class="btn primary" id="ai-go" type="button">Summarize this topic with AI</button>
+          <select id="ai-model" aria-label="AI model">
+            <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B · faster, about 1 GB download</option>
+            <option value="Qwen2.5-3B-Instruct-q4f16_1-MLC">Qwen2.5 3B · better, about 2 GB download</option>
+          </select>
+          <span id="ai-status"></span>
+        </div>
+        <p class="ai-warn">Runs a small open model inside your browser (WebGPU; recent Chrome, Edge or Safari). Nothing is sent to a server. The model is downloaded once and cached. It only sees the top results below, and it can still make mistakes, so check the cited items.</p>
+        <div id="ai-out" aria-live="polite"></div>
+      </div>
+    </section>
     <div class="status">
       <div id="count" aria-live="polite"></div>
       <label class="sort">Sort
@@ -221,24 +277,80 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   let ms = null;
   const docs = R.map(r => ({ id:r.i, t:r.t, tl:r.tl, kw:r.kw.concat(r.tech).join(" "), au:r.au.join(" "),
     x:[r.v, r.hw, r.base, r.mc, r.bm.join(" "), r.id, r.params].join(" ") }));
+  const STOP = new Set("a an and are as at be but by can do does for from how i if in into is it its me my of on or our should so something that the their them then there these this to use using want was we what when where which while who why will with without would you your goes go get make makes".split(" "));
+  const processTerm = t => { t = t.toLowerCase(); return STOP.has(t) ? null : t; };
   if (window.MiniSearch) {
-    ms = new MiniSearch({ fields:["t","tl","kw","au","x"], idField:"id",
-      searchOptions:{ boost:{ t:3, kw:2, tl:1.3, au:1.2 }, prefix:true, fuzzy:0.18 } });
+    ms = new MiniSearch({ fields:["t","tl","kw","au","x"], idField:"id", processTerm,
+      searchOptions:{ boost:{ t:3, kw:2, tl:1.3, au:1.2 }, prefix:true, fuzzy:0.18, processTerm } });
     ms.addAll(docs);
   }
   const norm = s => s.toLowerCase().normalize("NFKD").replace(/[^\w\s.-]/g, " ");
   const hay = docs.map(d => norm([d.t, d.tl, d.kw, d.au, d.x].join(" ")));
-  function search(q) {
-    q = q.trim();
-    if (!q) return null;
+  function keywordScores(q) {
     if (ms) {
       let hits = ms.search(q, { combineWith:"AND" });
-      if (!hits.length) hits = ms.search(q, { combineWith:"OR" });
+      if (!hits.length) {  // no item has every word: keep only strong partial matches
+        hits = ms.search(q, { combineWith:"OR" });
+        const cut = hits.length ? hits[0].score * 0.35 : 0;
+        hits = hits.filter(h => h.score >= cut).slice(0, 300);
+      }
       return new Map(hits.map(h => [h.id, h.score]));
     }
-    const toks = norm(q).split(/\s+/).filter(Boolean), m = new Map();
+    const toks = norm(q).split(/\s+/).filter(t => t && !STOP.has(t)), m = new Map();
     hay.forEach((h, i) => { const s = toks.filter(t => h.includes(t)).length; if (s === toks.length) m.set(i, s + (norm(R[i].t).includes(norm(q)) ? 5 : 0)); });
     return m;
+  }
+
+  // ---- semantic search: bge-small embeddings, documents precomputed (embeddings.bin), query embedded in the browser ----
+  const DIM = 384, QPREFIX = "Represent this sentence for searching relevant passages: ";
+  const SEM = { on:true, ready:false, loading:false, E:null, embed:null };
+  const semStatus = (msg, on) => { const el = $("#sem-status"); el.textContent = msg; el.classList.toggle("on", !!on); };
+  async function loadSemantic() {
+    if (SEM.ready || SEM.loading || !SEM.on) return;
+    SEM.loading = true; semStatus("loading…");
+    try {
+      const [buf, tf] = await Promise.all([
+        fetch("embeddings.bin").then(r => { if (!r.ok) throw new Error("index missing"); return r.arrayBuffer(); }),
+        import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0/dist/transformers.min.js")]);
+      SEM.E = new Int8Array(buf);
+      if (SEM.E.length !== R.length * DIM) throw new Error("index out of date");
+      SEM.embed = await tf.pipeline("feature-extraction", "Xenova/bge-small-en-v1.5", { dtype:"q8",
+        progress_callback: p => { if (p.status === "progress" && /\.onnx$/.test(p.file || "")) semStatus(`downloading model ${Math.round(p.progress)}%`); } });
+      SEM.ready = true; semStatus("on", true);
+      if (state.q.trim()) run();
+    } catch (e) {
+      SEM.on = false; $("#sem").checked = false;
+      semStatus(location.protocol === "file:" ? "needs the hosted site" : "unavailable, using keywords");
+    }
+    SEM.loading = false;
+  }
+  const qcache = new Map();
+  async function semScores(q) {
+    if (!qcache.has(q)) {
+      const v = (await SEM.embed(QPREFIX + q, { pooling:"cls", normalize:true })).data, E = SEM.E, out = new Float32Array(R.length);
+      for (let i = 0; i < R.length; i++) { let d = 0; const o = i * DIM; for (let k = 0; k < DIM; k++) d += v[k] * E[o + k]; out[i] = d / 127; }
+      qcache.set(q, out);
+    }
+    return qcache.get(q);
+  }
+  // Hybrid: short queries (names, acronyms) lean on keywords; longer descriptive queries lean on meaning.
+  async function search(q) {
+    q = q.trim();
+    if (!q) return null;
+    const kw = keywordScores(q);
+    if (!(SEM.on && SEM.ready)) return kw;
+    const sim = await semScores(q);
+    const nTerms = norm(q).split(/\s+/).filter(t => t && !STOP.has(t)).length;
+    const wk = nTerms <= 2 ? 0.6 : 0.25;
+    let mx = -1; for (let i = 0; i < sim.length; i++) if (sim[i] > mx) mx = sim[i];
+    let kmax = 1; kw.forEach(v => { if (v > kmax) kmax = v; });
+    const scored = [];
+    for (let i = 0; i < sim.length; i++) {
+      const k = (kw.get(i) || 0) / kmax, sN = Math.min(1, Math.max(0, (sim[i] - (mx - 0.2)) / 0.2));
+      if (sim[i] >= mx - 0.09 || k >= 0.5) scored.push([i, (1 - wk) * sN + wk * k]);
+    }
+    scored.sort((a, b) => b[1] - a[1]);
+    return new Map(scored.slice(0, 250));
   }
 
   // ---- filters ----
@@ -298,7 +410,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       r.code ? `<a href="${esc(r.code)}" target="_blank" rel="noopener">Code</a>` : "", `<span class="id">${esc(r.id)}</span>`].filter(Boolean).join("");
     const rows = [["Techniques", r.tech.join(", ")], ["Keywords", r.kw.join(", ")], ["Base model", r.base], ["Params", r.params],
       ["Benchmarks", r.bm.join(", ")], ["Why relevant", r.why], ["Found via", r.via]].filter(x => x[1]);
-    return `<li class="rec"><h2>${title}</h2>
+    return `<li class="rec" id="r-${r.i}"><h2>${title}</h2>
       <div class="meta">${hl(au)}${r.y ? ` · ${r.y}` : ""}${r.v ? ` · <span class="venue">${hl(r.v)}</span>` : ""}${r.ty ? ` · ${esc(r.ty)}` : ""}</div>
       <div class="tags">${tags.join("")}</div>
       ${r.tl ? `<p class="tldr">${hl(r.tl)}</p>` : ""}${eff}
@@ -306,9 +418,100 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       ${rows.length ? `<details><summary>Details</summary><dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${hl(v)}</dd>`).join("")}</dl></details>` : ""}</li>`;
   }
 
-  function run(keepShown) {
+  // ---- topic overview (deterministic aggregation over the best-matching items) ----
+  const HW_RE = /Jetson\s+(?:AGX\s+)?(?:Orin(?:\s+(?:NX|Nano))?|Thor|Xavier(?:\s+NX)?|Nano)|RTX\s?\d{4}(?:\s?Ti)?|\b(?:A100|H100|H200|B200|L40S?|A6000|A5000|A800|V100|T4)\b|Raspberry Pi\s?\d|Snapdragon|\bTPU\w*|Apple M\d|\bNPU\b|FPGA|\bCPU\b/gi;
+  const tally = arr => { const m = new Map(); arr.forEach(x => { if (x) m.set(x, (m.get(x) || 0) + 1); }); return [...m].sort((a, b) => b[1] - a[1]); };
+  const cntList = (pairs, n, click) => `<ul class="cnt">${pairs.slice(0, n).map(([k, v]) =>
+    `<li><span>${click ? `<button type="button" data-q="${esc(k)}">${esc(k)}</button>` : esc(k)}</span><span class="n">${v}</span></li>`).join("")}</ul>`;
+  let current = [];
+  function overview(list, active) {
+    const box = $("#overview");
+    box.hidden = !active || !list.length;
+    if (box.hidden) return;
+    const top = list.slice(0, 150);
+    $("#ov-note").textContent = `Aggregated from the ${top.length} best-matching of ${list.length.toLocaleString()} items`;
+    const yrs = tally(top.map(r => r.y)).sort((a, b) => a[0] - b[0]), ymax = Math.max(...yrs.map(x => x[1]));
+    const bars = `<div class="bars">${yrs.map(([y, n]) => `<div title="${y}: ${n}"><b style="height:${Math.max(3, n / ymax * 100)}%"></b><span>${String(y).slice(2)}</span></div>`).join("")}</div>`;
+    const cl = tally(top.flatMap(r => r.c)).map(([c, n]) => [`${c} ${CL[c]}`, n]);
+    const tech = tally(top.flatMap(r => r.tech.map(t => t.toLowerCase().trim())));
+    const hw = tally(top.flatMap(r => [...new Set((r.hw.match(HW_RE) || []).map(h => h.replace(/\s+/g, " ").replace(/^jetson/i, "Jetson")))]));
+    const eff = top.filter(r => r.met), groups = tally(eff.map(r => r.mm || "unspecified"));
+    const effHtml = groups.length ? `<div class="effgrp">${groups.map(([m, n]) => `<div class="g"><span class="m">${esc(m)}</span> · ${n} item${n > 1 ? "s" : ""}<ul>${
+      eff.filter(r => (r.mm || "unspecified") === m).slice(0, 3).map(r => `<li><a href="#r-${r.i}">${esc(r.t.length > 60 ? r.t.slice(0, 58) + "…" : r.t)}</a>: <span class="v">${esc(r.met.length > 110 ? r.met.slice(0, 108) + "…" : r.met)}</span>${r.hw ? ` <span class="hw">(${esc(r.hw.length > 50 ? r.hw.slice(0, 48) + "…" : r.hw)})</span>` : ""}</li>`).join("")}</ul></div>`).join("")}</div>`
+      : `<p class="ai-warn">None of these items report efficiency numbers.</p>`;
+    const share = (f, label) => `<li><span>${label}</span><span class="n">${top.filter(f).length} / ${top.length}</span></li>`;
+    $("#ov-grid").innerHTML = `
+      <div><h3>By year</h3>${bars}</div>
+      <div><h3>Clusters</h3>${cntList(cl, 9)}</div>
+      <div><h3>Top techniques</h3>${tech.length ? cntList(tech, 10, true) : "<p class='ai-warn'>None recorded.</p>"}</div>
+      <div><h3>Evidence</h3><ul class="cnt">${share(r => r.rel >= 4, "Relevance 4–5")}${share(r => r.robot, "Real-robot evaluation")}${share(r => r.onb, "Onboard deployment")}${share(r => r.met, "Report efficiency numbers")}${share(r => r.code, "Have code")}</ul>
+        ${hw.length ? `<h3 style="margin-top:12px">Hardware mentioned</h3>${cntList(hw, 6)}` : ""}</div>
+      <div style="grid-column:1/-1"><h3>Reported efficiency numbers, grouped by what they measure (not comparable across groups)</h3>${effHtml}</div>`;
+  }
+
+  // ---- AI topic summary: WebLLM runs an open model in the browser via WebGPU ----
+  const AI = { engine:null, model:"", busy:false };
+  const aiStatus = t => { $("#ai-status").textContent = t; };
+  function mdLite(text, refs) {
+    // Small models often write "(Record 3)" or "Records 2 and 5"; normalise to [3] / [2, 5] and drop placeholder "[n]".
+    text = text.replace(/\(?\b(?:Records?|Refs?\.?|Items?)\s+(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)\)?/gi, (m, g) => "[" + g.split(/\s*(?:,|and|&)\s*/).join(", ") + "]")
+               .replace(/\s*\[n\]/gi, "");
+    const lines = esc(text).split(/\n/);
+    let html = "", inList = false;
+    const inline = s => s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[(\d{1,2}(?:\s*,\s*\d{1,2})*)\]/g, (m, g) =>
+      g.split(/\s*,\s*/).map(n => refs[+n - 1] ? `<a class="cite" href="#r-${refs[+n - 1].i}" title="${esc(refs[+n - 1].t)}">${n}</a>` : `[${n}]`).join(" "));
+    for (const raw of lines) {
+      const l = raw.trim();
+      if (/^([-*•]|\d+\.)\s+/.test(l)) { if (!inList) { html += "<ul>"; inList = true; } html += `<li>${inline(l.replace(/^([-*•]|\d+\.)\s+/, ""))}</li>`; continue; }
+      if (inList) { html += "</ul>"; inList = false; }
+      if (!l) continue;
+      if (/^#{1,4}\s/.test(l) || /^\*\*[^*]+\*\*:?$/.test(l)) html += `<h4>${inline(l.replace(/^#{1,4}\s/, "").replace(/^\*\*|\*\*:?$/g, ""))}</h4>`;
+      else html += `<p>${inline(l)}</p>`;
+    }
+    return html + (inList ? "</ul>" : "");
+  }
+  async function summarize() {
+    if (AI.busy) return;
+    if (!navigator.gpu) { aiStatus("This browser has no WebGPU. Try a recent desktop Chrome or Edge."); return; }
+    const refs = current.slice(0, 16);
+    if (!refs.length) return;
+    AI.busy = true; $("#ai-go").disabled = true;
+    const topic = state.q.trim() || "the currently filtered set of items";
+    try {
+      const model = $("#ai-model").value;
+      if (!AI.engine || AI.model !== model) {
+        aiStatus("Loading the AI library…");
+        const webllm = await import("https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/+esm");
+        if (AI.engine) await AI.engine.unload();
+        AI.engine = await webllm.CreateMLCEngine(model, { initProgressCallback: p => aiStatus(p.text.replace(/\s*\[.*?\]\s*/g, " ").slice(0, 110)) });
+        AI.model = model;
+      }
+      aiStatus("Writing…");
+      const ctx = refs.map((r, n) => {
+        let s = `[${n + 1}] ${r.t} (${r.y || "n.d."}${r.v ? ", " + r.v : ""}). ${r.tl}`;
+        if (r.met) s += ` Reported: ${r.met} (measures: ${r.mm || "unspecified"}${r.hw ? "; hardware: " + r.hw : "; hardware not stated"}).`;
+        return s.length > 520 ? s.slice(0, 517) + "…" : s;
+      }).join("\n");
+      const messages = [
+        { role:"system", content:"You summarize robotics research literature for researchers. Use only the numbered records provided. Cite records inline with their bracketed numbers, for example: 'Inpainting keeps chunk boundaries smooth under delay [2][5].' Never write the word 'Record'. Never invent papers, results or numbers. Efficiency numbers with different 'measures' types (closed-loop control, open-loop chunk rate, throughput, relative latency, relative memory, energy) are not comparable, so never rank or compare numbers across types. Be concise and concrete." },
+        { role:"user", content:`Topic: "${topic}"\n\nRecords:\n${ctx}\n\nWrite four short sections with these headings:\n### Overview\n2-3 sentences.\n### Main approaches\nBullets, each with citations.\n### Reported results\nBullets; for each number say what it measures and on what hardware.\n### Gaps\nOpen problems visible in these records.\nStay under 330 words.` }];
+      let text = "";
+      const stream = await AI.engine.chat.completions.create({ messages, stream:true, temperature:0.3, max_tokens:650 });
+      for await (const c of stream) { text += c.choices[0]?.delta?.content || ""; $("#ai-out").innerHTML = mdLite(text, refs); }
+      $("#ai-out").innerHTML = mdLite(text, refs) + `<ol class="ai-refs">${refs.map(r => `<li><a href="${esc(r.u || r.pdf || "#r-" + r.i)}" target="_blank" rel="noopener">${esc(r.t)}</a>${r.y ? ` (${r.y})` : ""}</li>`).join("")}</ol>`;
+      aiStatus(`Summary of the top ${refs.length} results for “${topic.slice(0, 60)}”. AI-generated; check the sources.`);
+    } catch (e) {
+      aiStatus("The AI summary failed: " + (e && e.message ? e.message.slice(0, 140) : "unknown error") + ". Try the smaller model, or a desktop browser with WebGPU.");
+    }
+    AI.busy = false; $("#ai-go").disabled = false;
+  }
+
+  let runId = 0;
+  async function run(keepShown) {
     if (!keepShown) state.shown = 40;
-    const scores = search(state.q);
+    const my = ++runId;
+    const scores = await search(state.q);
+    if (my !== runId) return;
     terms = state.q.trim() ? state.q.trim().split(/\s+/).filter(t => t.length > 1) : [];
     let list = R.filter(r => pass(r) && (!scores || scores.has(r.i)));
     const byRel = (a, b) => (b.rel || 0) - (a.rel || 0) || (b.y || 0) - (a.y || 0);
@@ -320,13 +523,22 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     $("#count").innerHTML = `<b>${list.length.toLocaleString()}</b> of ${R.length.toLocaleString()} items`;
     $("#results").innerHTML = list.length ? list.slice(0, state.shown).map(card).join("")
       : `<li class="empty">No items match. Try fewer words, or clear some filters.</li>`;
+    current = list;
+    const filtered = state.cl.size || state.rel || state.ty.size || state.metric || state.eff || state.hw || state.robot || state.onboard || state.code
+      || state.y0 !== +years[0] || state.y1 !== +years[years.length - 1];
+    if (!keepShown) { overview(list, !!state.q.trim() || filtered); $("#ai-out").innerHTML = ""; if (!AI.busy) aiStatus(""); }
     $("#more").hidden = list.length <= state.shown;
     $("#more").textContent = `Show more (${(list.length - state.shown).toLocaleString()} left)`;
   }
 
   let timer;
-  $("#q").addEventListener("input", e => { clearTimeout(timer); timer = setTimeout(() => { state.q = e.target.value; run(); }, 120); });
-  document.querySelectorAll(".examples button").forEach(b => b.addEventListener("click", () => { $("#q").value = b.dataset.q; state.q = b.dataset.q; state.sort = "best"; $("#sort").value = "best"; run(); }));
+  $("#q").addEventListener("input", e => { loadSemantic(); clearTimeout(timer); timer = setTimeout(() => { state.q = e.target.value; run(); }, 180); });
+  $("#q").addEventListener("focus", loadSemantic, { once:true });
+  $("#sem").addEventListener("change", e => { SEM.on = e.target.checked; if (SEM.on) { if (SEM.ready) semStatus("on", true); else loadSemantic(); } else semStatus("off"); run(); });
+  $("#ai-go").addEventListener("click", summarize);
+  $("#ov-grid").addEventListener("click", e => { const b = e.target.closest("button[data-q]"); if (!b) return;
+    $("#q").value = b.dataset.q; state.q = b.dataset.q; run(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  document.querySelectorAll(".examples button").forEach(b => b.addEventListener("click", () => { loadSemantic(); $("#q").value = b.dataset.q; state.q = b.dataset.q; state.sort = "best"; $("#sort").value = "best"; run(); }));
   $("#f-cluster").addEventListener("change", e => { e.target.checked ? state.cl.add(e.target.value) : state.cl.delete(e.target.value); run(); });
   $("#f-rel").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return;
     state.rel = +b.dataset.v; $("#f-rel").querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b)); run(); });

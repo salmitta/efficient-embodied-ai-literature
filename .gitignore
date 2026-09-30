@@ -12,3 +12,6 @@ _work/existing_items.tsv
 _work/verify_s2.json
 _work/venue_check_dblp.json
 _work/snowball.log
+
+_work/node_modules/
+_work/package-lock.json
